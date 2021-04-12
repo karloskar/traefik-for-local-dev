@@ -4,7 +4,7 @@ Ports are nice. There are many of them. But remembering which port is used for w
 stops being fun whenever the number of projects increase.
 
 Being able to reference a project by a subdomain to localhost (`service-name.localhost`) seemed
-like a good idea. This is one solution to that idea.
+like a good idea. This is one solution to that idea using [Traefik](https://github.com/traefik/traefik).
 
 ### Adding routers and services
 
