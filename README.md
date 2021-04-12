@@ -18,7 +18,7 @@ labels:
   - "traefik.http.routers.service-1.rule=Host(\`service-1.localhost\`)"
 ```
 
-or, for situations wher you might have something running that is not containerized, by
+or, for situations where you might have something running that is not containerized, by
 adding a file in the dynamic directory (you need to create a directory called dynamic
 in this directory). Maybe something like `dynamic/service-2.yml` with
 content like this
