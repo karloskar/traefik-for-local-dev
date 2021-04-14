@@ -31,7 +31,7 @@ http:
         servers:
         - url: "http://host.docker.internal:{PORT_OF_RUNNING_SERVICE}/"
   routers:
-    evali:
+    service-2:
       entryPoints:
         - "http"
       rule: "Host(`service-2.localhost`)"
@@ -41,3 +41,36 @@ http:
 
 If everything was setup correctly, both `service-1.localhost` and `service-2.localhost`
 should now be good to go.
+
+
+### TLS
+
+For encrypted connections, create a directory called `local-certs`. Then use mkcert or a
+similar tool to get your certificates.
+
+Put a file in the dynamic directory like so:
+
+```
+# dynamic/tls.yml
+tls:
+  certificates:
+    - certFile: "/etc/traefik/certs/{certificate-filename}.pem"
+      keyFile: "/etc/traefik/certs/{key-filename}.pem"
+```
+
+and add
+
+```
+http:
+  routers:
+    # [ ... ]
+    service-2-tls:
+      entryPoints:
+        - "https"
+      rule: "Host(`service-2.localhost`)"
+      # reference the create service
+      service: "service-2"
+      tls: {}
+```
+
+if needed or use Traefik labels for a Docker container.

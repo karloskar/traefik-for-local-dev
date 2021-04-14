@@ -7,16 +7,22 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
       - "8181:8181"
     extra_hosts:
       # needed for routers/services provided from files
       # MUST match the IP used for the created network
       - "host.docker.internal:172.21.0.1"
+    logging:
+      options:
+        max-size: "1m"
     volumes:
       # the traefik static config
       - ./traefik.yml:/etc/traefik/traefik.yml
       # a directory where dynamic file configs can be placed
       - ./dynamic:/etc/traefik/sites.d
+      # dev certs
+      - ./local-certs:/etc/traefik/certs
       - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
