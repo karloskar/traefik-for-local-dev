@@ -35,7 +35,7 @@ http:
       entryPoints:
         - "http"
       rule: "Host(`service-2.localhost`)"
-      # reference the create service
+      # reference the created service
       service: "service-2"
 ```
 
@@ -68,7 +68,6 @@ http:
       entryPoints:
         - "https"
       rule: "Host(`service-2.localhost`)"
-      # reference the create service
       service: "service-2"
       tls: {}
 ```
