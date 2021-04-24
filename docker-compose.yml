@@ -4,7 +4,7 @@ services:
   traefik:
     image: traefik:v2.4
     # start with docker-compose up -d and let be alive
-    restart: unless-stopped
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -19,9 +19,9 @@ services:
     volumes:
       # the traefik static config
       - ./traefik.yml:/etc/traefik/traefik.yml
-      # a directory where dynamic file configs can be placed
+        # a directory where dynamic file configs can be placed
       - ./dynamic:/etc/traefik/sites.d
-      # dev certs
+        # dev certs
       - ./local-certs:/etc/traefik/certs
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -30,6 +30,7 @@ networks:
     driver: bridge
     name: localdevelopment
     ipam:
+      driver: default
       config:
-      - gateway: 172.21.0.1
-      - subnet: 172.21.0.0/24
+        - gateway: 172.21.0.1
+          subnet: 172.21.0.0/24
