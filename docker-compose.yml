@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   traefik:
@@ -19,18 +19,17 @@ services:
     volumes:
       # the traefik static config
       - ./traefik.yml:/etc/traefik/traefik.yml
-        # a directory where dynamic file configs can be placed
+      # a directory where dynamic file configs can be placed
       - ./dynamic:/etc/traefik/sites.d
-        # dev certs
+      # dev certs
       - ./local-certs:/etc/traefik/certs
       - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   default:
-    driver: bridge
     name: localdevelopment
+    driver: bridge
     ipam:
       driver: default
       config:
-        - gateway: 172.21.0.1
-          subnet: 172.21.0.0/24
+        - subnet: 172.21.0.0/24
