@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   traefik:
-    image: traefik:v2.4
+    image: traefik:v2.6
     # start with docker-compose up -d and let be alive
     restart: always
     ports:
