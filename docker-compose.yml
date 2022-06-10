@@ -10,7 +10,7 @@ services:
     extra_hosts:
       # needed for routers/services provided from files
       # MUST match the IP used for the created network
-      - "host.docker.internal:${LOCAL_NETWORK_PORT}"
+      - "host.docker.internal:host-gateway"
     logging:
       options:
         max-size: "1m"
@@ -30,4 +30,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: ${LOCAL_NETWORK_PORT}/24
+        - subnet: ${LOCAL_NETWORK_IP}/24
