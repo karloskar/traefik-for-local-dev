@@ -25,7 +25,3 @@ log:
   level: ERROR
 
 accessLog: {}
-
-docker:
-  domain: local
-  watch: true
