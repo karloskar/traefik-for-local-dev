@@ -6,12 +6,15 @@ stops being fun whenever the number of projects increase.
 Being able to reference a project by a subdomain to localhost (`service-name.localhost`) seemed
 like a good idea. This is one solution to that idea using [Traefik](https://github.com/traefik/traefik).
 
+For extending the Traefik configuration the recommendation is to create a `compose.override.yaml`
+file and make the necessary adjustments there.
+
 ### Adding routers and services
 
 Traefik is configured to use both the Docker and the File provider. Which let's you add a host
 with Docker labels like this
 
-```
+```yaml
 # a docker-compose example
 labels:
   - "traefik.enable=true"
@@ -23,13 +26,13 @@ adding a file in the dynamic directory (you need to create a directory called dy
 in this directory). Maybe something like `dynamic/service-2.yml` with
 content like this
 
-```
+```yaml
 http:
   services:
     service-2:
       loadBalancer:
         servers:
-        - url: "http://host.docker.internal:{PORT_OF_RUNNING_SERVICE}/"
+          - url: "http://host.docker.internal:{PORT_OF_RUNNING_SERVICE}/"
   routers:
     service-2:
       entryPoints:
@@ -42,7 +45,6 @@ http:
 If everything was setup correctly, both `service-1.localhost` and `service-2.localhost`
 should now be good to go.
 
-
 ### TLS
 
 For encrypted connections, create a directory called `local-certs`. Then use mkcert or a
@@ -50,7 +52,7 @@ similar tool to get your certificates.
 
 Put a file in the dynamic directory like so:
 
-```
+```yaml
 # dynamic/tls.yml
 tls:
   certificates:
@@ -60,7 +62,7 @@ tls:
 
 and add
 
-```
+```yaml
 http:
   routers:
     # [ ... ]
@@ -73,3 +75,8 @@ http:
 ```
 
 if needed or use Traefik labels for a Docker container.
+
+### Docker network `localdevopment`
+
+As part of this setup a Docker network is created. Using this network for services you add
+makes for easy service to service communication.
