@@ -9,6 +9,38 @@ like a good idea. This is one solution to that idea using [Traefik](https://gith
 For extending the Traefik configuration the recommendation is to create a `compose.override.yaml`
 file and make the necessary adjustments there.
 
+A few machine-specific values are read from a `.env` file instead, so that
+`compose.yaml` stays generic:
+
+| variable | default | what it does |
+| --- | --- | --- |
+| `LOCAL_NETWORK_IP` | `172.21.0.0` | subnet for the created Docker network |
+| `BIND_IP` | `0.0.0.0` | interface the proxy publishes on, e.g. `127.0.0.1` |
+| `HOST_GATEWAY` | `host-gateway` | what `host.docker.internal` resolves to |
+
+`BIND_IP` and `HOST_GATEWAY` live here rather than in the override because
+Compose *appends* `ports` and `extra_hosts` when merging — an override can add
+an entry but never replace one, so both values have to be set in the base file.
+
+### Rootless Docker
+
+Under rootless Docker the `host-gateway` alias resolves to the gateway of the
+container's own network namespace, which is not the host, so file-provider
+services pointing at `host.docker.internal` will not connect. Set
+`HOST_GATEWAY=10.0.2.2` (the slirp4netns gateway) in `.env` — this needs
+`dockerd-rootless` to run *without* `--disable-host-loopback`.
+
+The daemon also serves its socket from `$XDG_RUNTIME_DIR` instead of
+`/var/run`. Point at it from `compose.override.yaml`, keeping the container
+path so it replaces the bind in `compose.yaml`:
+
+```yaml
+services:
+  traefik:
+    volumes:
+      - /run/user/1000/docker.sock:/var/run/docker.sock
+```
+
 ### Adding routers and services
 
 Traefik is configured to use both the Docker and the File provider. Which let's you add a host

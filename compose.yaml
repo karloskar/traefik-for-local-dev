@@ -1,17 +1,22 @@
 services:
   traefik:
-    image: traefik:v3.2.1
+    image: traefik:v3.6.6
     # start with docker-compose up -d and let be alive
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      # BIND_IP narrows what the proxy listens on. Leave it unset to publish on
+      # every interface; set it in .env (e.g. 127.0.0.1) to keep it host-local.
+      - "${BIND_IP:-0.0.0.0}:80:80"
+      - "${BIND_IP:-0.0.0.0}:443:443"
       # for the local admin UI
-      - "8181:8181"
+      - "${BIND_IP:-0.0.0.0}:8181:8181"
     extra_hosts:
-      # needed for routers/services provided from files
-      # MUST match the IP used for the created network
-      - "host.docker.internal:host-gateway"
+      # needed for routers/services provided from files.
+      # host-gateway is right for rootful Docker. Under rootless Docker it
+      # resolves to the network namespace's bridge gateway, which is not the
+      # host, so set HOST_GATEWAY in .env to the address that is (10.0.2.2 for
+      # slirp4netns, unless dockerd-rootless runs with --disable-host-loopback).
+      - "host.docker.internal:${HOST_GATEWAY:-host-gateway}"
     logging:
       options:
         max-size: "1m"
@@ -20,7 +25,9 @@ services:
       - ./dynamic:/etc/traefik/sites.d
       # dev certs
       - ./local-certs:/etc/traefik/certs
-      # The Docker socket
+      # The Docker socket. Rootless Docker serves it from $XDG_RUNTIME_DIR
+      # instead; override the source path in compose.override.yaml, which
+      # replaces this bind because they share a container path.
       - /var/run/docker.sock:/var/run/docker.sock
       # For resolver cert storage
       - ./letsencrypt:/letsencrypt
