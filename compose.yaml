@@ -48,9 +48,8 @@ services:
 
 networks:
   default:
+    # Created once by hand, not by Compose — see the README. Compose deletes a
+    # network it owns on `down`, which orphans every other project's stopped
+    # containers on the old network id. External means it outlives this stack.
     name: localdevelopment
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: ${LOCAL_NETWORK_IP:-172.21.0.0}/24
+    external: true

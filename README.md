@@ -6,20 +6,32 @@ stops being fun whenever the number of projects increase.
 Being able to reference a project by a subdomain to localhost (`service-name.localhost`) seemed
 like a good idea. This is one solution to that idea using [Traefik](https://github.com/traefik/traefik).
 
+### Prerequisite: create the shared network
+
+The `localdevelopment` network is created once, by hand, and referenced here as
+external:
+
+```bash
+docker network create --subnet 172.21.0.0/24 localdevelopment
+```
+
+Compose only deletes networks it owns, so `docker compose down` here now leaves
+the network — and every other project attached to it — alone. Pick another
+subnet if that range collides with something on your machine.
+
 For extending the Traefik configuration the recommendation is to create a `compose.override.yaml`
 file and make the necessary adjustments there.
 
 A few machine-specific values are read from a `.env` file instead, so that
 `compose.yaml` stays generic:
 
-| variable | default | what it does |
-| --- | --- | --- |
-| `LOCAL_NETWORK_IP` | `172.21.0.0` | subnet for the created Docker network |
-| `BIND_IP` | `0.0.0.0` | interface the proxy publishes on, e.g. `127.0.0.1` |
-| `HOST_GATEWAY` | `host-gateway` | what `host.docker.internal` resolves to |
+| variable       | default        | what it does                                       |
+| -------------- | -------------- | -------------------------------------------------- |
+| `BIND_IP`      | `0.0.0.0`      | interface the proxy publishes on, e.g. `127.0.0.1` |
+| `HOST_GATEWAY` | `host-gateway` | what `host.docker.internal` resolves to            |
 
 `BIND_IP` and `HOST_GATEWAY` live here rather than in the override because
-Compose *appends* `ports` and `extra_hosts` when merging — an override can add
+Compose _appends_ `ports` and `extra_hosts` when merging — an override can add
 an entry but never replace one, so both values have to be set in the base file.
 
 ### Rootless Docker
@@ -28,7 +40,7 @@ Under rootless Docker the `host-gateway` alias resolves to the gateway of the
 container's own network namespace, which is not the host, so file-provider
 services pointing at `host.docker.internal` will not connect. Set
 `HOST_GATEWAY=10.0.2.2` (the slirp4netns gateway) in `.env` — this needs
-`dockerd-rootless` to run *without* `--disable-host-loopback`.
+`dockerd-rootless` to run _without_ `--disable-host-loopback`.
 
 The daemon also serves its socket from `$XDG_RUNTIME_DIR` instead of
 `/var/run`. Point at it from `compose.override.yaml`, keeping the container
@@ -108,7 +120,15 @@ http:
 
 if needed or use Traefik labels for a Docker container.
 
-### Docker network `localdevopment`
+### Docker network `localdevelopment`
 
-As part of this setup a Docker network is created. Using this network for services you add
-makes for easy service to service communication.
+Put your other services on this network and they can reach each other by
+container name. Declare it as external there too, so no project but the creator
+owns it:
+
+```yaml
+networks:
+  default:
+    external: true
+    name: localdevelopment
+```
