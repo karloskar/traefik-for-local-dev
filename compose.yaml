@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.6.6
+    image: traefik:v3.7.13
     # start with docker-compose up -d and let be alive
     restart: unless-stopped
     ports:
